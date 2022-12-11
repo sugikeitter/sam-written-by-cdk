@@ -1,16 +1,38 @@
-import * as cdk from 'aws-cdk-lib';
+import { Stack, StackProps } from 'aws-cdk-lib';
+import * as dynamodb from 'aws-cdk-lib/aws-dynamodb'
+import * as sam from 'aws-cdk-lib/aws-sam';
 import { Construct } from 'constructs';
-// import * as sqs from 'aws-cdk-lib/aws-sqs';
 
-export class SamWrittenByCdkStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+export class CdkSamStack extends Stack {
+  constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
-    // The code that defines your stack goes here
+    const ddb = new dynamodb.Table(this, 'MyTable', {
+      partitionKey: {
+        name: 'id',
+        type: dynamodb.AttributeType.STRING
+      }
+    });
 
-    // example resource
-    // const queue = new sqs.Queue(this, 'SamWrittenByCdkQueue', {
-    //   visibilityTimeout: cdk.Duration.seconds(300)
-    // });
+    new sam.CfnFunction(this, 'MyFunction', {
+      codeUri: 'sam-lambda/index/',
+      handler: 'app.lambda_handler',
+      runtime: 'python3.8',
+      events: {
+        api: {
+          type: 'Api',
+          properties: {
+            method: 'GET',
+            path: '/',
+          }
+        }
+      },
+      environment: {
+        variables: {
+          DDB_TABLE: ddb.tableName,
+          URL: 'https://www.yahoo.co.jp'
+        }
+      }
+    });
   }
 }
