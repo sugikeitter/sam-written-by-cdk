@@ -16,7 +16,6 @@
       "test"
     ]
   },
-  "build": "echo \"Globals:\n  Function:\n    Timeout: 10\n    Tracing: Active\n  Api:\n    TracingEnabled: true\n    EndpointConfiguration:\n      Type: REGIONAL\n    OpenApiVersion: 3.0.3\"",
   "context": {
     "@aws-cdk/aws-lambda:recognizeLayerVersion": true,
     "@aws-cdk/core:checkSecretUsage": true,

@@ -1,0 +1,43 @@
+Globals:
+  Function:
+    Timeout: 10
+    Tracing: Active
+  Api:
+    TracingEnabled: true
+    EndpointConfiguration:
+      Type: REGIONAL
+    OpenApiVersion: 3.0.3
+Transform: AWS::Serverless-2016-10-31
+Resources:
+  MyTable794EDED1:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+  MyFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: sam-lambda/index/
+      Environment:
+        Variables:
+          DDB_TABLE:
+            Ref: MyTable794EDED1
+          URL: https://www.yahoo.co.jp
+      Events:
+        api:
+          Properties:
+            Method: GET
+            Path: /
+          Type: Api
+      Handler: app.lambda_handler
+      Runtime: python3.8
+
