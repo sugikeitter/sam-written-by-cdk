@@ -16,9 +16,9 @@ def lambda_handler(event, context):
             'url': url,
             'yearAndMonth': yyyymm
         },
-        UpdateExpression='ADD count :num',
+        UpdateExpression='ADD cnt :num',
         ExpressionAttributeValues={
-            ':num': {'N': 1}
+            ':num': 1
         }
     )
 
