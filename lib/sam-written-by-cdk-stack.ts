@@ -3,25 +3,36 @@ import * as dynamodb from 'aws-cdk-lib/aws-dynamodb'
 import * as sam from 'aws-cdk-lib/aws-sam';
 import { Construct } from 'constructs';
 
-export class CdkSamStack extends Stack {
+export class Cdk2SamStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
-    const ddb = new dynamodb.Table(this, 'MyTable', {
+    const ddb = new dynamodb.Table(this, 'accessCounter', {
       partitionKey: {
-        name: 'id',
+        name: 'url',
         type: dynamodb.AttributeType.STRING
-      }
+      },
+      sortKey: {
+        name: 'yearAndMonth',
+        type: dynamodb.AttributeType.STRING
+      },
     });
 
-    new sam.CfnFunction(this, 'MyFunction', {
-      codeUri: 'sam-lambda/index/',
+    const restApi = new sam.CfnApi(this, 'RestApi', {
+      stageName: 'dev',
+      name: 'cdk2sam-api',
+    });
+
+    const lambdaGetItem = new sam.CfnFunction(this, 'IndexFunction', {
+      functionName: 'cdk2sam-index',
+      codeUri: 'functions/index/',
       handler: 'app.lambda_handler',
-      runtime: 'python3.8',
+      runtime: 'python3.9',
       events: {
         api: {
           type: 'Api',
           properties: {
+            restApiId: restApi.ref,
             method: 'GET',
             path: '/',
           }
@@ -30,9 +41,16 @@ export class CdkSamStack extends Stack {
       environment: {
         variables: {
           DDB_TABLE: ddb.tableName,
-          URL: 'https://www.yahoo.co.jp'
+          URL: 'https://aws.amazon.com/jp/builders-flash/'
         }
-      }
+      },
+      policies: [
+        {
+          dynamoDbWritePolicy: {
+            tableName: ddb.tableName,
+          }
+        }
+      ]
     });
   }
 }
