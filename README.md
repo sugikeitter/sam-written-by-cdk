@@ -1,10 +1,61 @@
-# Welcome to your CDK TypeScript project
+# sam-written-by-cdk
 
-This is a blank project for CDK development with TypeScript.
+## 手順
+1. [`aws-cdk-lib.aws_sam`](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_sam-readme.html) を使用して CDK でコードを書く
+2. CDK が使用するメタデータなどをテンプレートに出力しないように、`./cdk.json` の編集と `cdk synth` 実行時にオプションを追加する
+3. SAM 固有の [`Glabals` セクション](https://docs.aws.amazon.com/ja_jp/serverless-application-model/latest/developerguide/sam-specification-template-anatomy-globals.html) を使用できるように `./sam-globals.yaml` ファイルの作成と実行時オプションの `--build='cat sam-globals.yaml'` を組み合わせる
+   - `aws-cdk-lib.aws_sam` は現時点で `Glabals` セクションに対応していないため
+4. `cdk synth --no-staging --no-version-reporting --no-path-metadata --build='cat sam-globals.yaml' > template.yaml` で SAM テンプレートを出力
+   - さらに `package.json` を修正して `npm run cdk2sam` で実施できるようにしておく
+5. `sam build` & `sam deploy` でリソースをデプロイする
+   - もちろん `sam local` でのテストや `sam sync` によるデプロイも可能
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
+## CDK settings
 
-## Useful commands
+- サンプルコード内の主要なファイル
+```bash
+.
+├── bin
+│   └── sam-written-by-cdk.ts       # CDK の App クラス
+├── cdk.json                        # cdk synth の出力制御などオプション設定
+├── functions                       # Lambda 関数のコードを配置するディレクトリ
+│   └── index                       # 関数ごとに区切ったディレクトリ
+│       ├── __init__.py
+│       ├── app.py
+│       └── requirements.txt
+├── lib
+│   └── sam-written-by-cdk-stack.ts # SAM リソースやその他 AWS リソース定義
+├── package-lock.json
+├── package.json
+├── sam-globals.yaml                # Globals セクションの定義
+└── template.yaml                   # cdk synth で出力した SAM テンプレート
+```
+
+- cdk.json の設定例
+```diff
+   "context": {
++    "@aws-cdk/core:newStyleStackSynthesis": false,
+     "@aws-cdk/aws-lambda:recognizeLayerVersion": true,
+```
+
+- package.json の設定例
+```diff
+   "scripts": {
+     "build": "tsc",
+     "watch": "tsc -w",
+     "test": "jest",
+     "cdk": "cdk",
++    "cdk2sam": "cdk synth --no-staging --no-version-reporting --no-path-metadata --build='cat sam-globals.yaml'> template.yaml"
+   },
+```
+
+- SAM テンプレートである `template.yaml` ファイル出力コマンド 😉
+```bash
+# template.yaml に SAM テンプレートの内容を書き出す
+npm run cdk2sam
+```
+
+## AWS SAM useful commands
 
 | Command | Note |
 |---|---|
