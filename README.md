@@ -1,5 +1,8 @@
 # sam-written-by-cdk
 
+<img src="https://user-images.githubusercontent.com/8069859/209464380-a2252847-a51c-4a7f-8165-fedd044c53de.png" width="640px">
+https://zenn.dev/sugikeitter/articles/sam-written-by-cdk
+
 ## 手順
 1. [`aws-cdk-lib.aws_sam`](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_sam-readme.html) を使用して CDK でコードを書く
 2. CDK が使用するメタデータなどをテンプレートに出力しないように、`./cdk.json` の編集と `cdk synth` 実行時にオプションを追加する
