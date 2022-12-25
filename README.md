@@ -6,25 +6,11 @@ The `cdk.json` file tells the CDK Toolkit how to execute your app.
 
 ## Useful commands
 
-* `cdk synth --no-version-reporting --no-path-metadata --no-asset-metadata --no-staging --build='cat sam-globals.yaml' > template.yaml `       emits the synthesized CloudFormation template
-* `sam build` / `sam build --use-container`
-* `sam deploy` / `sam deploy --guided` / `sam deploy --no-execute-changeset --stack-name sam-written-by-cdk`
-* `aws cloudformation list-change-sets --stack-name sam-written-by-cdk --output json`
-* `aws cloudformation execute-change-set --change-set-name `aws cloudformation list-change-sets --stack-name sam-written-by-cdk --output text --query Summaries[0].ChangeSetId` --output json`
-
-## Add Globals
-Globals を追加したい場合、`synth` 前にコマンド実行できる `build` オプションでテキストを標準出力しておくことで、`synth` 結果をファイルへリダイレクトさせる時に合わせて冒頭に `template.yaml` へ差し込めるようにしておく (少し強引)
-`cdk.json` にこちらを追記しておくか、
-```diff:cdk.json
-+   "build": "echo \"Globals:\n  Function:\n    Timeout: 10\n    Tracing: Active\n  Api:\n    TracingEnabled: true\n    EndpointConfiguration:\n      Type: REGIONAL\n    OpenApiVersion: 3.0.3\"",
-    "context": {
-```
-`cdk` コマンド実行時のオプションに `--build` を利用する
-```bash
---build='echo "Globals:\n  Function:\n    Timeout: 10\n    Tracing: Active\n  Api:\n    TracingEnabled: true\n    EndpointConfiguration:\n      Type: REGIONAL\n    OpenApiVersion: 3.0.3"
-```
-
-追記したい内容をファイルに保存しておき、 `--build 'cat file.txt'` で出力したものを `template.yaml` に書き出す
-```bash
-cdk synth --no-version-reporting --no-path-metadata --no-asset-metadata --no-staging --build='cat sam-globals.yaml' > template.yaml
-```
+| Command | Note |
+|---|---|
+| `sam build --cached --use-container` | キャッシュを利用したビルド、コンテナランタイムがあれば Lambda 関数の言語ランタイムを気にせずビルドできる。 |
+| `sam local invoke --debug	-e event.json [FUNCTION_LOGICAL_ID]` | Lambda 関数にイベント引数を渡してローカル実行。 |
+| `sam local start-api --debug -p 3000` | API Gateway のエンドポイントをローカルで起動、ポート番号も選べる。 |
+| `sam local start-lambda && aws lambda invoke --function-name "[FUNCTION_NAME]" --endpoint-url "http://127.0.0.1:3001" --no-verify-ssl out.txt` | SAM で定義した Lambda 関数を、別のコードのテストのため呼び出したい場合などに役立つ。詳細は [こちら](https://docs.aws.amazon.com/ja_jp/serverless-application-model/latest/developerguide/sam-cli-command-reference-sam-local-start-lambda.html) 。 |
+| `sam deploy --no-execute-changeset` | 変更セットの実行はせず、変更内容の確認のみ。 |
+| `sam sync --stack-name [STACK_NAME]` | SAM 以外のリソースも変更セットを作成せずにそのままデプロイできるので、開発環境で手早くデプロイしたい時に便利。 |
